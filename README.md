@@ -1,12 +1,12 @@
 # Rio ![License Badge](https://img.shields.io/badge/license-MIT-blue?link=https%3A%2F%2Fgithub.com%2Fayushgun%2Faqua%2Fblob%2Fmain%2FLICENSE) ![PR Badge](https://img.shields.io/badge/PRs-welcome-red)
 
-A runtime for writing concurrent, asynchronous, and slim applications with C++20.
+A runtime for writing slim, concurrent, and asynchronous applications with C++20.
 
 # Key Features
 
-- **Performant:** Rio's near zero-cost abstractions enable bare-metal performance
-- **Flexible:** Support for multiple task types and scheduling policies
-- **Scalable:** Rio tightly manages resources and minimizes busy spinning
+- **Performant:** Rio's near zero-cost abstractions enable bare-metal performance.
+- **Flexible:** Supports multiple task types and scheduling policies.
+- **Scalable:** Rio tightly manages resources and minimizes busy spinning.
 
 # Getting Started
 
@@ -14,7 +14,7 @@ A runtime for writing concurrent, asynchronous, and slim applications with C++20
 #include "rio/executor.hpp"
 
 int main() {
-  // Initialize the runtime by creating an `executor` object.
+  // Initialize the runtime by creating an executor object.
   rio::executor executor;
   auto& scheduler = executor.get_scheduler();
 
@@ -22,7 +22,7 @@ int main() {
   std::future<int> future = scheduler.await([](int n) { return n + 1; }, 10);
   std::cout << future.get() << '\n';
   //                  ^^^
-  //                  Retrieve the result via the generated `std::future`
+  //                  Retrieve the result via the generated std::future.
 }
 ```
 
@@ -34,7 +34,7 @@ int main() {
 #include "rio/scheduler.hpp"
 
 // Define a custom scheduling policy and task scheduler by implementing the
-// `rio::scheduler` interface.
+// rio::scheduler interface.
 class custom_scheduler : public rio::scheduler {
   // ...
 };
@@ -45,8 +45,8 @@ int main() {
   //            Use a custom pool size and scheduler implementation.
   auto& scheduler = executor.get_scheduler();
 
-  // Submit a void task to the `executor`. Since execution is guaranteed to
-  // occur strictly once, `std::cout` synchronization is not required in this
+  // Submit a void task to the executor. Since execution is guaranteed to
+  // occur strictly once, std::cout synchronization is not required in this
   // trivial case.
   scheduler.await([]() { std::cout << "Hello World\n"; });
 }
