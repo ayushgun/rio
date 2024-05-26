@@ -14,10 +14,12 @@
 #include "rio/worker.hpp"
 #include <gtest/gtest.h>
 
-class worker_test : public ::testing::Test {};
+class worker_test : public ::testing::Test {
+ protected:
+  rio::worker test_worker;
+};
 
 TEST_F(worker_test, task_execution) {
-  rio::worker test_worker;
   std::atomic<bool> task_completed{false};
 
   test_worker.assign([&]() { task_completed.store(true); });
@@ -29,7 +31,6 @@ TEST_F(worker_test, task_execution) {
 }
 
 TEST_F(worker_test, multiple_tasks) {
-  rio::worker test_worker;
   std::atomic<int> counter{0};
 
   for (int i = 0; i < 10; ++i) {
