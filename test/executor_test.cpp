@@ -15,27 +15,27 @@
 #include <gtest/gtest.h>
 #include <future>
 
-class ExecutorTest : public ::testing::Test {
+class executor_test : public ::testing::Test {
  protected:
-  rio::executor<> exec;  // Instantiate the default executor for each test
+  rio::executor<> executor;  // Instantiate the default executor for each test
 };
 
-TEST_F(ExecutorTest, FutureReturnValue) {
-  auto& scheduler = exec.get_scheduler();
+TEST_F(executor_test, future_return_value) {
+  auto& scheduler = executor.get_scheduler();
   std::future<int> future = scheduler.await([](int n) { return n + 1; }, 10);
   ASSERT_EQ(future.get(), 11);
 }
 
-TEST_F(ExecutorTest, VoidFuture) {
-  auto& scheduler = exec.get_scheduler();
+TEST_F(executor_test, void_future) {
+  auto& scheduler = executor.get_scheduler();
   int value = 10;
   std::future<void> future = scheduler.await([&value]() { value *= 2; });
   future.get();
   ASSERT_EQ(value, 20);
 }
 
-TEST_F(ExecutorTest, ExceptionHandling) {
-  auto& scheduler = exec.get_scheduler();
+TEST_F(executor_test, exception_handling) {
+  auto& scheduler = executor.get_scheduler();
   std::future<int> future =
       scheduler.await([]() -> int { throw std::runtime_error("Test Error"); });
 

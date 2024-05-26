@@ -14,9 +14,9 @@
 #include "rio/worker.hpp"
 #include <gtest/gtest.h>
 
-class WorkerTest : public ::testing::Test {};
+class worker_test : public ::testing::Test {};
 
-TEST_F(WorkerTest, TaskExecution) {
+TEST_F(worker_test, task_execution) {
   rio::worker test_worker;
   std::atomic<bool> task_completed{false};
 
@@ -28,7 +28,7 @@ TEST_F(WorkerTest, TaskExecution) {
   EXPECT_TRUE(task_completed.load());
 }
 
-TEST_F(WorkerTest, MultipleTasks) {
+TEST_F(worker_test, multiple_tasks) {
   rio::worker test_worker;
   std::atomic<int> counter{0};
 
