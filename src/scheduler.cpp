@@ -15,17 +15,20 @@
 #include <thread>
 #include "rio/core_count.hpp"
 
-namespace rio {
-fcfs_scheduler::fcfs_scheduler(std::size_t n)
+rio::fcfs_scheduler::fcfs_scheduler(std::size_t n)
     : tasks(HARDWARE_CONCURRENCY), prev_wid(0), max_wid(n) {}
 
-void fcfs_scheduler::schedule(rio::task&& task) {
+void rio::fcfs_scheduler::schedule(rio::task&& task) {
   while (!tasks.write(std::move(task))) {
     std::this_thread::yield();
   }
 }
 
-std::optional<rio::scheduled_task> fcfs_scheduler::next() {
+bool rio::fcfs_scheduler::has_tasks() const {
+  return !tasks.isEmpty();
+}
+
+std::optional<rio::scheduled_task> rio::fcfs_scheduler::next() {
   if (tasks.isEmpty()) {
     return std::nullopt;
   }
@@ -36,4 +39,3 @@ std::optional<rio::scheduled_task> fcfs_scheduler::next() {
 
   return rio::scheduled_task{std::move(task), wid};
 }
-}  // namespace rio

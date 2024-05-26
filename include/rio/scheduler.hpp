@@ -34,6 +34,9 @@ class scheduler {
   virtual void schedule(rio::task&&) = 0;
 
  public:
+  /// Returns true if there are tasks pending to be scheduled.
+  virtual bool has_tasks() const = 0;
+
   /// Retrieves the next scheduled task if available.
   virtual std::optional<rio::scheduled_task> next() = 0;
 
@@ -85,12 +88,16 @@ class fcfs_scheduler : public rio::scheduler {
   rio::worker_id prev_wid;
   rio::worker_id max_wid;
 
+ protected:
+  /// Schedules a task using a FCFS approach.
+  void schedule(rio::task&& task) override;
+
  public:
   /// Constructs a FCFS scheduler for a specified number of workers.
   explicit fcfs_scheduler(std::size_t n);
 
-  /// Schedules a task using a FCFS approach.
-  void schedule(rio::task&& task) override;
+  /// Returns true if there are tasks in the scheduler's queue.
+  bool has_tasks() const override;
 
   /// Retrieves and prepares the next task for execution, determining the
   /// appropriate worker ID.

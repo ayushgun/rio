@@ -33,7 +33,7 @@ class executor {
 
   /// Continuously retrieves and assigns scheduled tasks to workers.
   void distribute_work() {
-    while (!stop.test()) {
+    while (!stop.test() || scheduler.has_tasks()) {
       std::optional<rio::scheduled_task> next_task = scheduler.next();
 
       if (next_task.has_value()) {
