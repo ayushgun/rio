@@ -1,0 +1,50 @@
+// MIT License
+// Copyright (c) 2024 Ayush Gundawar <ayushgundawar (at) gmail (dot) com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+
+#include "rio/executor.hpp"
+#include <gtest/gtest.h>
+#include <future>
+
+class ExecutorTest : public ::testing::Test {
+ protected:
+  rio::executor<> exec;  // Instantiate the default executor for each test
+};
+
+TEST_F(ExecutorTest, FutureReturnValue) {
+  auto& scheduler = exec.get_scheduler();
+  std::future<int> future = scheduler.await([](int n) { return n + 1; }, 10);
+  ASSERT_EQ(future.get(), 11);
+}
+
+TEST_F(ExecutorTest, VoidFuture) {
+  auto& scheduler = exec.get_scheduler();
+  int value = 10;
+  std::future<void> future = scheduler.await([&value]() { value *= 2; });
+  future.get();
+  ASSERT_EQ(value, 20);
+}
+
+TEST_F(ExecutorTest, ExceptionHandling) {
+  auto& scheduler = exec.get_scheduler();
+  std::future<int> future =
+      scheduler.await([]() -> int { throw std::runtime_error("Test Error"); });
+
+  try {
+    int result = future.get();
+    FAIL() << "Expected std::runtime_error";
+  } catch (const std::runtime_error& e) {
+    ASSERT_STREQ("Test Error", e.what());
+  } catch (...) {
+    FAIL() << "Expected std::runtime_error";
+  }
+}

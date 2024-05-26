@@ -1,4 +1,3 @@
-# Project declaration
 cmake_minimum_required(VERSION 3.19)
 project(rio LANGUAGES CXX)
 
@@ -31,9 +30,35 @@ target_include_directories(rio PUBLIC include ${FOLLY_INCLUDE_DIR})
 target_link_libraries(rio PRIVATE ${FOLLY_LIBRARY})
 add_dependencies(rio GenerateCoreCountHeader)
 
-# Compiler and linker flags for debug builds
+# Include Google Test
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.12.1
+)
+FetchContent_MakeAvailable(googletest)
+
+# Test executable
+add_executable(rio_tests test/executor_test.cpp test/worker_test.cpp test/scheduler_test.cpp)
+target_link_libraries(rio_tests PRIVATE rio gtest_main)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_link_libraries(rio_tests PRIVATE c++abi)
+endif()
+
+# Compiler and linker flags for debug builds with sanitizers
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(rio PRIVATE -Wall -Werror -Wextra -Wpedantic)
-    target_compile_options(rio PRIVATE -fsanitize=thread)
-    target_link_options(rio PRIVATE -fsanitize=thread)
+    target_compile_options(rio_tests PRIVATE -fsanitize=thread)
+    target_link_options(rio_tests PRIVATE -fsanitize=thread)
 endif()
+
+# Compiler options for tests depending on the Standard Library
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(rio_tests PRIVATE $<$<CONFIG:Debug>:-D_GLIBCXX_DEBUG -D_GLIBCXX_ASSERTIONS>)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(rio_tests PRIVATE $<$<CONFIG:Debug>:-D_LIBCPP_DEBUG=1>)
+endif()
+
+enable_testing()
+add_test(NAME rio_test COMMAND rio_tests)
