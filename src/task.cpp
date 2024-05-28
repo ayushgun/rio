@@ -11,33 +11,25 @@
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
 
-#include "rio/worker.hpp"
-#include <thread>
-#include "rio/core_count.hpp"
+#include "rio/task.hpp"
+#include <functional>
+#include <utility>
 
-void rio::worker::process_work() {
-  while (!stop.load()) {
-    ready.acquire();  // Wait until tasks are ready to be executed
+rio::task::task(std::function<void()> propagator)
+    : propagator(propagator), has_executed(false) {}
 
-    while (!tasks.isEmpty()) {
-      auto task = std::move(*tasks.frontPtr());
-      tasks.popFront();
-      std::invoke(task);
-    }
-  }
+rio::task::task(task&& other)
+    : propagator(std::move(other.propagator)),
+      has_executed(other.has_executed.load()) {}
+
+rio::task& rio::task::operator=(task&& other) {
+  propagator = std::move(other.propagator);
+  has_executed.store(other.has_executed.load());
+  return *this;
 }
 
-rio::worker::worker()
-    : tasks(rio::hardware_concurrency),
-      ready(0),
-      stop(false),
-      thread([&]() { process_work(); }) {}
-
-rio::worker::~worker() {
-  stop.store(true);
-  ready.release();
-
-  if (thread.joinable()) {
-    thread.join();
+void rio::task::operator()() {
+  if (!has_executed.exchange(true)) {
+    propagator();
   }
 }

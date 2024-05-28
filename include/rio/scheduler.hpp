@@ -19,6 +19,7 @@
 #include <future>
 #include <semaphore>
 #include <utility>
+#include "rio/task.hpp"
 #include "rio/worker.hpp"
 
 namespace rio {
@@ -52,28 +53,11 @@ class scheduler {
       typename... A,
       typename R = std::invoke_result_t<std::decay_t<F>, std::decay_t<A>...>>
   std::future<R> await(F&& function, A&&... arguments) {
-    auto promise = new std::promise<R>();
-    std::future<R> future = promise->get_future();
-
-    auto task = [promise, function = std::forward<F>(function),
-                 ... arguments = std::forward<A>(arguments)]() mutable {
-      try {
-        // Invoke the function and handle the return type appropriately
-        if constexpr (std::is_same_v<R, void>) {
-          std::invoke(function, arguments...);
-          promise->set_value();
-        } else {
-          promise->set_value(std::invoke(function, arguments...));
-        }
-      } catch (...) {
-        promise->set_exception(std::current_exception());
-      }
-
-      delete promise;
-    };
+    auto [future, task] = rio::task::build(std::forward<F>(function),
+                                           std::forward<A>(arguments)...);
 
     schedule(std::move(task));
-    return future;
+    return std::move(future);
   }
 };
 
