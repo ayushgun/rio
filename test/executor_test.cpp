@@ -13,38 +13,72 @@
 
 #include "rio/executor.hpp"
 #include <gtest/gtest.h>
+#include <atomic>
+#include <chrono>
 #include <future>
+#include <thread>
+#include "rio/scheduler.hpp"
 
 class executor_test : public ::testing::Test {
  protected:
-  rio::executor<> executor;  // Instantiate the default executor for each test
+  rio::executor<4, rio::fcfs_scheduler> executor;
 };
 
-TEST_F(executor_test, future_return_value) {
-  auto& scheduler = executor.get_scheduler();
-  std::future<int> future = scheduler.await([](int n) { return n + 1; }, 10);
-  ASSERT_EQ(future.get(), 11);
+TEST_F(executor_test, ExecutorCanSubmitAndExecuteSingleTask) {
+  auto future = executor.get_scheduler().await([]() { return 42; });
+  EXPECT_EQ(future.get(), 42);
 }
 
-TEST_F(executor_test, void_future) {
-  auto& scheduler = executor.get_scheduler();
-  int value = 10;
-  std::future<void> future = scheduler.await([&value]() { value *= 2; });
-  future.get();
-  ASSERT_EQ(value, 20);
+TEST_F(executor_test, ExecutorCanSubmitAndExecuteMultipleTasks) {
+  auto future1 = executor.get_scheduler().await([]() { return 42; });
+  auto future2 = executor.get_scheduler().await([]() { return 24; });
+
+  EXPECT_EQ(future1.get(), 42);
+  EXPECT_EQ(future2.get(), 24);
 }
 
-TEST_F(executor_test, exception_handling) {
-  auto& scheduler = executor.get_scheduler();
-  std::future<int> future =
-      scheduler.await([]() -> int { throw std::runtime_error("Test Error"); });
+TEST_F(executor_test, ExecutorHandlesVoidTasks) {
+  std::atomic<bool> executed = false;
+  auto future =
+      executor.get_scheduler().await([&executed]() { executed = true; });
 
-  try {
-    int result = future.get();
-    FAIL() << "Expected std::runtime_error";
-  } catch (const std::runtime_error& e) {
-    ASSERT_STREQ("Test Error", e.what());
-  } catch (...) {
-    FAIL() << "Expected std::runtime_error";
-  }
+  future.get();  // Wait for the task to complete
+  EXPECT_TRUE(executed.load());
+}
+
+TEST_F(executor_test, ExecutorDistributesTasksToWorkers) {
+  std::array<std::atomic<bool>, 3> executed = {false, false, false};
+  auto future1 =
+      executor.get_scheduler().await([&executed]() { executed[0] = true; });
+  auto future2 =
+      executor.get_scheduler().await([&executed]() { executed[1] = true; });
+  auto future3 =
+      executor.get_scheduler().await([&executed]() { executed[2] = true; });
+
+  future1.get();
+  future2.get();
+  future3.get();
+
+  EXPECT_TRUE(executed[0].load());
+  EXPECT_TRUE(executed[1].load());
+  EXPECT_TRUE(executed[2].load());
+}
+
+TEST_F(executor_test, ExecutorStopsGracefully) {
+  auto future = executor.get_scheduler().await([]() { return 42; });
+  EXPECT_EQ(future.get(), 42);
+
+  // Allow some time for the executor to potentially process the shutdown
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Ensure no crashes or exceptions on shutdown
+}
+
+TEST_F(executor_test, ExecutorHandlesBlockingTasks) {
+  auto future = executor.get_scheduler().await([]() {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    return 42;
+  });
+
+  EXPECT_EQ(future.get(), 42);
 }

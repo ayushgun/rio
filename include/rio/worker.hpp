@@ -15,26 +15,24 @@
 
 #include <atomic>
 #include <cstddef>
-#include <functional>
 #include <semaphore>
 #include <thread>
 #include "folly/ProducerConsumerQueue.h"
+#include "rio/task.hpp"
 
 namespace rio {
 /// Represents a unique identifier for a worker.
 using worker_id = std::size_t;
-
-/// Invokable work wrapped with result propogation logic.
-using task = std::function<void()>;
 
 /// Represents a worker thread that executes tasks from a queue.
 class worker {
  private:
   folly::ProducerConsumerQueue<rio::task> tasks;
   std::binary_semaphore ready;
-  std::atomic_flag stop;
+  std::atomic<bool> stop;
   std::thread thread;
 
+ private:
   /// Processes all work in the task queue.
   void process_work();
 

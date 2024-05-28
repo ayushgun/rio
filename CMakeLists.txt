@@ -25,7 +25,7 @@ add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/include/rio/core_count.hpp
 add_custom_target(GenerateCoreCountHeader ALL DEPENDS ${CMAKE_SOURCE_DIR}/include/rio/core_count.hpp)
 
 # Define the library, link dependencies, and include directories
-add_library(rio STATIC src/worker.cpp src/scheduler.cpp)
+add_library(rio STATIC src/worker.cpp src/scheduler.cpp src/task.cpp)
 target_include_directories(rio PUBLIC include ${FOLLY_INCLUDE_DIR})
 target_link_libraries(rio PRIVATE ${FOLLY_LIBRARY})
 add_dependencies(rio GenerateCoreCountHeader)
@@ -40,7 +40,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 # Test executable
-add_executable(rio_tests test/executor_test.cpp test/worker_test.cpp test/scheduler_test.cpp)
+add_executable(rio_tests test/executor_test.cpp test/worker_test.cpp test/scheduler_test.cpp test/task_test.cpp)
 target_link_libraries(rio_tests PRIVATE rio gtest_main)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_link_libraries(rio_tests PRIVATE c++abi)
