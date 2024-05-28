@@ -27,12 +27,13 @@ class executor {
  private:
   S scheduler;
   std::array<rio::worker, N - 1> workers;
-  std::atomic_flag stop;
+  std::atomic<bool> stop;
   std::thread master;
 
+ private:
   /// Continuously retrieves and assigns scheduled tasks to workers.
   void distribute_work() {
-    while (!stop.test() || scheduler.has_tasks()) {
+    while (!stop.load() || scheduler.has_tasks()) {
       rio::scheduled_task task = scheduler.next();
       workers[task.wid].assign(std::move(task.task));
     }
@@ -42,7 +43,7 @@ class executor {
   /// Creates and initializes a master thread with work distribution logic.
   /// Additionally, creates N - 1 worker threads.
   explicit executor()
-      : scheduler(N - 1), master([&]() { distribute_work(); }) {}
+      : scheduler(N - 1), stop(false), master([&]() { distribute_work(); }) {}
 
   executor(const executor&) = delete;
   void operator=(const executor&) = delete;
@@ -50,7 +51,7 @@ class executor {
   /// Stops work processing logic and joins the master thread and all worker
   /// threads.
   ~executor() {
-    stop.test_and_set();
+    stop.store(true);
 
     // Note: if the master thread is blocked by the next call and the scheduler
     // is empty (i.e., has no tasks to schedule), then submit a blank task to
