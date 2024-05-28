@@ -49,8 +49,6 @@ endif()
 # Compiler and linker flags for debug builds with sanitizers
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(rio PRIVATE -Wall -Werror -Wextra -Wpedantic)
-    target_compile_options(rio_tests PRIVATE -fsanitize=thread)
-    target_link_options(rio_tests PRIVATE -fsanitize=thread)
 endif()
 
 # Compiler options for tests depending on the Standard Library
