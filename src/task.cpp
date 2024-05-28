@@ -33,3 +33,7 @@ void rio::task::operator()() {
     propagator();
   }
 }
+
+bool rio::task::executed() const {
+  return has_executed.load();
+}

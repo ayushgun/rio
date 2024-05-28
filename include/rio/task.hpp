@@ -60,7 +60,7 @@ class task {
     auto propagater = [promise, function = std::forward<F>(function),
                        ... arguments = std::forward<A>(arguments)]() mutable {
       try {
-        // Invoke the function and handle the return type appropriately
+        // Invoke the callable and handle the return type appropriately
         if constexpr (std::is_same_v<R, void>) {
           std::invoke(function, arguments...);
           promise->set_value();
@@ -77,11 +77,14 @@ class task {
     return {std::move(future), std::move(task(propagater))};
   }
 
-  /// Executes the encapsulated function if it has not been executed already.
+  /// Executes the encapsulated callable if it has not been executed already.
   void operator()();
+
+  /// Returns whether or not the callable has been executed already.
+  bool executed() const;
 };
 
-/// Encapsulates a task and its associated future. The future holds the result
+/// Represents a task and its associated future. The future holds the result
 /// of the task, which may be obtained asynchronously.
 template <typename R>
 struct task_closure {
