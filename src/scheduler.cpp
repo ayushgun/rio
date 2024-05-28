@@ -33,9 +33,9 @@ std::optional<rio::scheduled_task> rio::fcfs_scheduler::next() {
     return std::nullopt;
   }
 
-  rio::task&& task = std::move(*tasks.frontPtr());
   rio::worker_id wid = prev_wid++ % max_wid;
+  rio::scheduled_task next_task = {std::move(*tasks.frontPtr()), wid};
   tasks.popFront();
 
-  return rio::scheduled_task{std::move(task), wid};
+  return next_task;
 }

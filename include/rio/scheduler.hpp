@@ -24,7 +24,7 @@
 namespace rio {
 /// Represents a task scheduled for execution with the assigned worker.
 struct scheduled_task {
-  rio::task&& task;    // Task to be executed.
+  rio::task task;      // Task to be executed.
   rio::worker_id wid;  // Worker ID for task execution.
 };
 
@@ -68,6 +68,7 @@ class scheduler {
       } catch (...) {
         promise->set_exception(std::current_exception());
       }
+
       delete promise;
     };
 
