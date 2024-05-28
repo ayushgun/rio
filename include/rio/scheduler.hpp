@@ -80,7 +80,7 @@ class scheduler {
 /// Validates if a type S is derived from scheduler and constructible with a
 /// std::size_t representing the number of worker threads.
 template <typename S>
-concept executor_scheduler =
+concept constructible_scheduler =
     std::derived_from<S, scheduler> && requires(std::size_t num_workers) {
       { S(num_workers) } -> std::same_as<S>;
     };
