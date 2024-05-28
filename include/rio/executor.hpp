@@ -13,7 +13,6 @@
 
 #pragma once
 
-#include <concepts>
 #include <cstddef>
 #include "rio/core_count.hpp"
 #include "rio/scheduler.hpp"
@@ -22,7 +21,7 @@
 namespace rio {
 /// Manages the execution of tasks using a specific scheduler.
 template <std::size_t N = rio::hardware_concurrency,
-          std::derived_from<rio::scheduler> S = rio::fcfs_scheduler>
+          executor_scheduler S = rio::fcfs_scheduler>
   requires(N >= 2)
 class executor {
  private:
@@ -64,6 +63,6 @@ class executor {
   }
 
   /// Exposes a mutable reference to the task scheduler.
-  S& get_scheduler() { return scheduler; }
+  constexpr S& get_scheduler() { return scheduler; }
 };
 }  // namespace rio
