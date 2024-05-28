@@ -81,7 +81,7 @@ class task {
   void operator()();
 
   /// Returns whether or not the callable has been executed already.
-  bool executed() const;
+  bool is_executed() const;
 };
 
 /// Represents a task and its associated future. The future holds the result

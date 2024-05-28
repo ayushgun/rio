@@ -34,6 +34,6 @@ void rio::task::operator()() {
   }
 }
 
-bool rio::task::executed() const {
+bool rio::task::is_executed() const {
   return has_executed.load();
 }
