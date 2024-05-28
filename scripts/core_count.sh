@@ -23,8 +23,23 @@ else
     exit 1
 fi
 
-# Ensure the include/rio directory exists
-mkdir -p ../include/rio
+# Path to the core_count.hpp file
+FILE_PATH="include/rio/core_count.hpp"
 
-echo "#pragma once" > ../include/rio/core_count.hpp
-echo "#define HARDWARE_CONCURRENCY $core_count" >> ../include/rio/core_count.hpp
+# Check if the file exists
+if [ ! -f "$FILE_PATH" ]; then
+    echo "File does not exist: $FILE_PATH"
+    exit 1
+fi
+
+# Update the constexpr line with the new core count
+awk -v count="$core_count" '{
+    if ($0 ~ /^constexpr std::size_t hardware_concurrency = /) {
+        print "constexpr std::size_t hardware_concurrency = " count ";"
+    } else {
+        print $0
+    }
+}' $FILE_PATH > $FILE_PATH.temp
+
+# Replace the old file with the new file
+mv $FILE_PATH.temp $FILE_PATH

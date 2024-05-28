@@ -32,7 +32,7 @@ void rio::worker::process_work() {
 }
 
 rio::worker::worker()
-    : tasks(HARDWARE_CONCURRENCY), thread([&]() { process_work(); }) {}
+    : tasks(rio::hardware_concurrency), thread([&]() { process_work(); }) {}
 
 rio::worker::~worker() {
   stop.test_and_set();

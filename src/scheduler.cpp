@@ -16,7 +16,7 @@
 #include "rio/core_count.hpp"
 
 rio::fcfs_scheduler::fcfs_scheduler(std::size_t n)
-    : tasks(HARDWARE_CONCURRENCY), prev_wid(0), max_wid(n) {}
+    : tasks(rio::hardware_concurrency), prev_wid(0), max_wid(n) {}
 
 void rio::fcfs_scheduler::schedule(rio::task&& task) {
   while (!tasks.write(std::move(task))) {

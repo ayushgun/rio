@@ -21,7 +21,7 @@
 
 namespace rio {
 /// Manages the execution of tasks using a specific scheduler.
-template <std::size_t N = HARDWARE_CONCURRENCY,
+template <std::size_t N = rio::hardware_concurrency,
           std::derived_from<rio::scheduler> S = rio::fcfs_scheduler>
   requires(N >= 2)
 class executor {
