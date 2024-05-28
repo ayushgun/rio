@@ -81,9 +81,7 @@ class scheduler {
 /// std::size_t representing the number of worker threads.
 template <typename S>
 concept constructible_scheduler =
-    std::derived_from<S, scheduler> && requires(std::size_t num_workers) {
-      { S(num_workers) } -> std::same_as<S>;
-    };
+    std::derived_from<S, scheduler> && std::constructible_from<S, std::size_t>;
 
 /// Default FCFS task scheduler.
 class fcfs_scheduler : public rio::scheduler {
