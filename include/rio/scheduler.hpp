@@ -17,7 +17,7 @@
 #include <concepts>
 #include <cstddef>
 #include <future>
-#include <optional>
+#include <semaphore>
 #include <utility>
 #include "rio/worker.hpp"
 
@@ -43,7 +43,7 @@ class scheduler {
   virtual bool has_tasks() const = 0;
 
   /// Retrieves the next scheduled task if available.
-  virtual std::optional<rio::scheduled_task> next() = 0;
+  virtual rio::scheduled_task next() = 0;
 
   /// Submits a task for execution and returns a future containing the task's
   /// return value or exception.
@@ -87,6 +87,7 @@ concept constructible_scheduler =
 class fcfs_scheduler : public rio::scheduler {
  private:
   folly::ProducerConsumerQueue<rio::task> tasks;
+  std::binary_semaphore ready;
   rio::worker_id prev_wid;
   rio::worker_id max_wid;
 
@@ -102,7 +103,7 @@ class fcfs_scheduler : public rio::scheduler {
   bool has_tasks() const override;
 
   /// Retrieves and prepares the next task for execution, determining the
-  /// appropriate worker ID.
-  std::optional<rio::scheduled_task> next() override;
+  /// appropriate worker ID. Blocks until a task is ready to be scheduled.
+  rio::scheduled_task next() override;
 };
 }  // namespace rio

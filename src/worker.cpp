@@ -17,25 +17,24 @@
 
 void rio::worker::process_work() {
   while (!stop.test()) {
-    // Yield the current thread if the task queue is empty to prevent
-    // busy-waiting and waiting CPU cycles.
-    if (tasks.isEmpty()) {
-      std::this_thread::yield();
-    } else {
-      while (!tasks.isEmpty()) {
-        auto task = std::move(*tasks.frontPtr());
-        tasks.popFront();
-        std::invoke(task);
-      }
+    ready.acquire();  // Wait until tasks are ready to be executed
+
+    while (!tasks.isEmpty()) {
+      auto task = std::move(*tasks.frontPtr());
+      tasks.popFront();
+      std::invoke(task);
     }
   }
 }
 
 rio::worker::worker()
-    : tasks(rio::hardware_concurrency), thread([&]() { process_work(); }) {}
+    : tasks(rio::hardware_concurrency),
+      ready(0),
+      thread([&]() { process_work(); }) {}
 
 rio::worker::~worker() {
   stop.test_and_set();
+  ready.release();
 
   if (thread.joinable()) {
     thread.join();

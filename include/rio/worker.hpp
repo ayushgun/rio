@@ -16,6 +16,7 @@
 #include <atomic>
 #include <cstddef>
 #include <functional>
+#include <semaphore>
 #include <thread>
 #include "folly/ProducerConsumerQueue.h"
 
@@ -30,6 +31,7 @@ using task = std::function<void()>;
 class worker {
  private:
   folly::ProducerConsumerQueue<rio::task> tasks;
+  std::binary_semaphore ready;
   std::atomic_flag stop;
   std::thread thread;
 
@@ -53,6 +55,8 @@ class worker {
     while (!tasks.write(std::forward<T>(task))) {
       std::this_thread::yield();
     }
+
+    ready.release();  // Signal that tasks are ready to be executed
   }
 };
 }  // namespace rio

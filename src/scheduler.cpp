@@ -16,22 +16,25 @@
 #include "rio/core_count.hpp"
 
 rio::fcfs_scheduler::fcfs_scheduler(std::size_t num_workers)
-    : tasks(rio::hardware_concurrency), prev_wid(0), max_wid(num_workers) {}
+    : tasks(rio::hardware_concurrency),
+      ready(0),
+      prev_wid(0),
+      max_wid(num_workers) {}
 
 void rio::fcfs_scheduler::schedule(rio::task&& task) {
   while (!tasks.write(std::move(task))) {
     std::this_thread::yield();
   }
+
+  ready.release();  // Signal that tasks are ready to be scheduled
 }
 
 bool rio::fcfs_scheduler::has_tasks() const {
   return !tasks.isEmpty();
 }
 
-std::optional<rio::scheduled_task> rio::fcfs_scheduler::next() {
-  if (tasks.isEmpty()) {
-    return std::nullopt;
-  }
+rio::scheduled_task rio::fcfs_scheduler::next() {
+  ready.acquire();  // Wait until tasks are ready to be scheduled
 
   rio::worker_id wid = prev_wid++ % max_wid;
   rio::scheduled_task next_task = {std::move(*tasks.frontPtr()), wid};
