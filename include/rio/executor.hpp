@@ -33,13 +33,8 @@ class executor {
   /// Continuously retrieves and assigns scheduled tasks to workers.
   void distribute_work() {
     while (!stop.test() || scheduler.has_tasks()) {
-      std::optional<rio::scheduled_task> next_task = scheduler.next();
-
-      if (next_task.has_value()) {
-        workers[next_task->wid].assign(std::move(next_task->task));
-      } else {
-        std::this_thread::yield();
-      }
+      rio::scheduled_task task = scheduler.next();
+      workers[task.wid].assign(std::move(task.task));
     }
   }
 
@@ -56,6 +51,13 @@ class executor {
   /// threads.
   ~executor() {
     stop.test_and_set();
+
+    // Note: if the master thread is blocked by the next call and the scheduler
+    // is empty (i.e., has no tasks to schedule), then submit a blank task to
+    // allow the master thread to pass through the next call
+    if (!scheduler.has_tasks()) {
+      scheduler.await([]() {});
+    }
 
     if (master.joinable()) {
       master.join();
