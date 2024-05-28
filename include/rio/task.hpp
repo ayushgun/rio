@@ -53,7 +53,7 @@ class task {
       typename F,
       typename... A,
       typename R = std::invoke_result_t<std::decay_t<F>, std::decay_t<A>...>>
-  static task_closure<R> build(F&& function, A&&... arguments) {
+  static task_closure<R> make(F&& function, A&&... arguments) {
     auto promise = new std::promise<R>();
     std::future<R> future = promise->get_future();
 
