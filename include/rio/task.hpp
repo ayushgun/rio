@@ -80,8 +80,8 @@ class task {
   /// Executes the encapsulated callable if it has not been executed already.
   void operator()();
 
-  /// Returns whether or not the callable has been executed already.
-  bool has_executed() const;
+  /// Returns whether or not the callable can be executed now.
+  bool is_executable() const;
 };
 
 /// Represents a task and its associated future. The future holds the result
