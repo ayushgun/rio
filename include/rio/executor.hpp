@@ -57,7 +57,7 @@ class executor {
     // is empty (i.e., has no tasks to schedule), then submit a blank task to
     // allow the master thread to pass through the next call
     if (!scheduler.has_tasks()) {
-      scheduler.await([]() {});
+      scheduler.spawn([]() {});
     }
 
     if (master.joinable()) {

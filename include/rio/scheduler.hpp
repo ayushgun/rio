@@ -52,7 +52,7 @@ class scheduler {
       typename F,
       typename... A,
       typename R = std::invoke_result_t<std::decay_t<F>, std::decay_t<A>...>>
-  std::future<R> await(F&& function, A&&... arguments) {
+  std::future<R> spawn(F&& function, A&&... arguments) {
     auto [future, task] = rio::task::make(std::forward<F>(function),
                                           std::forward<A>(arguments)...);
 

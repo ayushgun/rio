@@ -25,7 +25,7 @@ class fcfs_scheduler_test : public ::testing::Test {
 };
 
 TEST_F(fcfs_scheduler_test, SchedulerCanScheduleAndRetrieveTask) {
-  auto future = scheduler.await([]() { return 42; });
+  auto future = scheduler.spawn([]() { return 42; });
   EXPECT_TRUE(scheduler.has_tasks());
 
   auto scheduled_task = scheduler.next();
@@ -34,8 +34,8 @@ TEST_F(fcfs_scheduler_test, SchedulerCanScheduleAndRetrieveTask) {
 }
 
 TEST_F(fcfs_scheduler_test, SchedulerHandlesMultipleTasks) {
-  auto future1 = scheduler.await([]() { return 42; });
-  auto future2 = scheduler.await([]() { return 24; });
+  auto future1 = scheduler.spawn([]() { return 42; });
+  auto future2 = scheduler.spawn([]() { return 24; });
   EXPECT_TRUE(scheduler.has_tasks());
 
   auto scheduled_task1 = scheduler.next();
@@ -48,8 +48,8 @@ TEST_F(fcfs_scheduler_test, SchedulerHandlesMultipleTasks) {
 }
 
 TEST_F(fcfs_scheduler_test, SchedulerAssignsTasksToWorkerInFCFS) {
-  auto future1 = scheduler.await([]() { return 42; });
-  auto future2 = scheduler.await([]() { return 24; });
+  auto future1 = scheduler.spawn([]() { return 42; });
+  auto future2 = scheduler.spawn([]() { return 24; });
   EXPECT_TRUE(scheduler.has_tasks());
 
   auto scheduled_task1 = scheduler.next();
@@ -64,7 +64,7 @@ TEST_F(fcfs_scheduler_test, SchedulerAssignsTasksToWorkerInFCFS) {
 }
 
 TEST_F(fcfs_scheduler_test, SchedulerNextBlocksUntilTaskIsAvailable) {
-  auto future = scheduler.await([]() { return 42; });
+  auto future = scheduler.spawn([]() { return 42; });
 
   std::thread t([&]() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -76,8 +76,8 @@ TEST_F(fcfs_scheduler_test, SchedulerNextBlocksUntilTaskIsAvailable) {
   EXPECT_EQ(future.get(), 42);
 }
 
-TEST_F(fcfs_scheduler_test, AwaitSchedulesTaskAndReturnsFuture) {
-  auto future = scheduler.await([]() { return 42; });
+TEST_F(fcfs_scheduler_test, SpawnSchedulesTaskAndReturnsFuture) {
+  auto future = scheduler.spawn([]() { return 42; });
   EXPECT_TRUE(scheduler.has_tasks());
 
   auto scheduled_task = scheduler.next();

@@ -19,7 +19,7 @@ int main() {
   auto& scheduler = executor.get_scheduler();
 
   // Submit a task which produces an integer to the `executor`.
-  std::future<int> future = scheduler.await([](int n) { return n + 1; }, 10);
+  std::future<int> future = scheduler.spawn([](int n) { return n + 1; }, 10);
   std::cout << future.get() << '\n';
   //                  ^^^
   //                  Retrieve the result via the generated std::future.
@@ -48,6 +48,6 @@ int main() {
   // Submit a void task to the executor. Since execution is guaranteed to
   // occur strictly once, std::cout synchronization is not required in this
   // trivial case.
-  scheduler.await([]() { std::cout << "Hello World\n"; });
+  scheduler.spawn([]() { std::cout << "Hello World\n"; });
 }
 ```

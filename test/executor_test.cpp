@@ -25,13 +25,13 @@ class executor_test : public ::testing::Test {
 };
 
 TEST_F(executor_test, ExecutorCanSubmitAndExecuteSingleTask) {
-  auto future = executor.get_scheduler().await([]() { return 42; });
+  auto future = executor.get_scheduler().spawn([]() { return 42; });
   EXPECT_EQ(future.get(), 42);
 }
 
 TEST_F(executor_test, ExecutorCanSubmitAndExecuteMultipleTasks) {
-  auto future1 = executor.get_scheduler().await([]() { return 42; });
-  auto future2 = executor.get_scheduler().await([]() { return 24; });
+  auto future1 = executor.get_scheduler().spawn([]() { return 42; });
+  auto future2 = executor.get_scheduler().spawn([]() { return 24; });
 
   EXPECT_EQ(future1.get(), 42);
   EXPECT_EQ(future2.get(), 24);
@@ -40,7 +40,7 @@ TEST_F(executor_test, ExecutorCanSubmitAndExecuteMultipleTasks) {
 TEST_F(executor_test, ExecutorHandlesVoidTasks) {
   std::atomic<bool> executed = false;
   auto future =
-      executor.get_scheduler().await([&executed]() { executed = true; });
+      executor.get_scheduler().spawn([&executed]() { executed = true; });
 
   future.get();  // Wait for the task to complete
   EXPECT_TRUE(executed.load());
@@ -49,11 +49,11 @@ TEST_F(executor_test, ExecutorHandlesVoidTasks) {
 TEST_F(executor_test, ExecutorDistributesTasksToWorkers) {
   std::array<std::atomic<bool>, 3> executed = {false, false, false};
   auto future1 =
-      executor.get_scheduler().await([&executed]() { executed[0] = true; });
+      executor.get_scheduler().spawn([&executed]() { executed[0] = true; });
   auto future2 =
-      executor.get_scheduler().await([&executed]() { executed[1] = true; });
+      executor.get_scheduler().spawn([&executed]() { executed[1] = true; });
   auto future3 =
-      executor.get_scheduler().await([&executed]() { executed[2] = true; });
+      executor.get_scheduler().spawn([&executed]() { executed[2] = true; });
 
   future1.get();
   future2.get();
@@ -65,7 +65,7 @@ TEST_F(executor_test, ExecutorDistributesTasksToWorkers) {
 }
 
 TEST_F(executor_test, ExecutorStopsGracefully) {
-  auto future = executor.get_scheduler().await([]() { return 42; });
+  auto future = executor.get_scheduler().spawn([]() { return 42; });
   EXPECT_EQ(future.get(), 42);
 
   // Allow some time for the executor to potentially process the shutdown
@@ -75,7 +75,7 @@ TEST_F(executor_test, ExecutorStopsGracefully) {
 }
 
 TEST_F(executor_test, ExecutorHandlesBlockingTasks) {
-  auto future = executor.get_scheduler().await([]() {
+  auto future = executor.get_scheduler().spawn([]() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     return 42;
   });
