@@ -77,6 +77,6 @@ TEST(task_test, TaskMoveAssignmentTransfersHasExecutedFlag) {
   task_closure2.task();
 
   // Check if the task has been executed once
-  EXPECT_TRUE(task_closure2.task.is_executed());
+  EXPECT_TRUE(task_closure2.task.has_executed());
   EXPECT_EQ(task_closure1.future.get(), 42);
 }

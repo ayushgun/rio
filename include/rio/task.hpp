@@ -74,7 +74,7 @@ class task {
       delete promise;
     };
 
-    return {std::move(future), std::move(task(propagater))};
+    return {std::move(future), std::move(task(std::move(propagater)))};
   }
 
   /// Executes the encapsulated callable if it has not been executed already.
