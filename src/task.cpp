@@ -16,24 +16,24 @@
 #include <utility>
 
 rio::task::task(std::function<void()> propagator)
-    : propagator(propagator), has_executed(false) {}
+    : propagator(propagator), executed(false) {}
 
 rio::task::task(task&& other)
     : propagator(std::move(other.propagator)),
-      has_executed(other.has_executed.load()) {}
+      executed(other.executed.load()) {}
 
 rio::task& rio::task::operator=(task&& other) {
   propagator = std::move(other.propagator);
-  has_executed.store(other.has_executed.load());
+  executed.store(other.executed.load());
   return *this;
 }
 
 void rio::task::operator()() {
-  if (!has_executed.exchange(true)) {
+  if (!executed.exchange(true)) {
     propagator();
   }
 }
 
 bool rio::task::is_executed() const {
-  return has_executed.load();
+  return executed.load();
 }

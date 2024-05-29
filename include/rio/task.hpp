@@ -27,7 +27,7 @@ struct task_closure;
 class task {
  private:
   std::function<void()> propagator;
-  std::atomic<bool> has_executed;
+  std::atomic<bool> executed;
 
  private:
   /// Receives a propagator function built by task::build() and stores it as a
@@ -81,7 +81,7 @@ class task {
   void operator()();
 
   /// Returns whether or not the callable has been executed already.
-  bool is_executed() const;
+  bool has_executed() const;
 };
 
 /// Represents a task and its associated future. The future holds the result
