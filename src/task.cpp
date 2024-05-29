@@ -19,12 +19,15 @@ rio::task::task(std::function<void()> propagator)
     : propagator(propagator), executed(false) {}
 
 rio::task::task(task&& other)
-    : propagator(std::move(other.propagator)),
-      executed(other.executed.load()) {}
+    : propagator(std::exchange(other.propagator, nullptr)),
+      executed(other.executed.load()) {
+  other.executed.store(true);
+}
 
 rio::task& rio::task::operator=(task&& other) {
-  propagator = std::move(other.propagator);
+  propagator = std::exchange(other.propagator, nullptr);
   executed.store(other.executed.load());
+  other.executed.store(true);
   return *this;
 }
 
@@ -34,6 +37,6 @@ void rio::task::operator()() {
   }
 }
 
-bool rio::task::is_executed() const {
+bool rio::task::has_executed() const {
   return executed.load();
 }
