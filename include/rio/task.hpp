@@ -22,8 +22,7 @@ namespace rio {
 template <typename R>
 struct task_closure;
 
-/// Manages the execution of a single callable function asynchronously, ensuring
-/// it only runs once.
+/// Manages the execution of a single callable function.
 class task {
  private:
   std::function<void()> propagator;
