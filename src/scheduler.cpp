@@ -13,7 +13,7 @@
 
 #include "rio/scheduler.hpp"
 #include <thread>
-#include "rio/core_count.hpp"
+#include "rio/thread_count.hpp"
 
 rio::fcfs_scheduler::fcfs_scheduler(std::size_t num_workers)
     : tasks(rio::hardware_concurrency),

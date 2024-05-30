@@ -13,7 +13,7 @@
 
 #include "rio/worker.hpp"
 #include <thread>
-#include "rio/core_count.hpp"
+#include "rio/thread_count.hpp"
 
 void rio::worker::process_work() {
   while (!stop.load()) {

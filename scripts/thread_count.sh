@@ -15,16 +15,16 @@
 
 # Determine the number of hardware threads based on the operating system
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    core_count=$(nproc)
+    thread_count=$(nproc)
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-    core_count=$(sysctl -n hw.ncpu)
+    thread_count=$(sysctl -n hw.ncpu)
 else
     echo "Unsupported OS: $OSTYPE"
     exit 1
 fi
 
-# Path to the core_count.hpp file
-FILE_PATH="include/rio/core_count.hpp"
+# Path to the thread_count.hpp file
+FILE_PATH="include/rio/thread_count.hpp"
 
 # Check if the file exists
 if [ ! -f "$FILE_PATH" ]; then
@@ -33,7 +33,7 @@ if [ ! -f "$FILE_PATH" ]; then
 fi
 
 # Update the constexpr line with the new core count
-awk -v count="$core_count" '{
+awk -v count="$thread_count" '{
     if ($0 ~ /^constexpr std::size_t hardware_concurrency = /) {
         print "constexpr std::size_t hardware_concurrency = " count ";"
     } else {

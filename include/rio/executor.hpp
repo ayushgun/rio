@@ -14,8 +14,8 @@
 #pragma once
 
 #include <cstddef>
-#include "rio/core_count.hpp"
 #include "rio/scheduler.hpp"
+#include "rio/thread_count.hpp"
 #include "rio/worker.hpp"
 
 namespace rio {

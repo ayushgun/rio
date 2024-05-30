@@ -14,15 +14,15 @@ endif()
 find_path(FOLLY_INCLUDE_DIR folly/Optional.h HINTS ${HOMEBREW_PREFIX}/include)
 find_library(FOLLY_LIBRARY folly HINTS ${HOMEBREW_PREFIX}/lib)
 
-# Custom command and target to generate core_count.hpp
-add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/include/rio/core_count.hpp
-    COMMAND ${CMAKE_SOURCE_DIR}/scripts/core_count.sh
-    DEPENDS ${CMAKE_SOURCE_DIR}/scripts/core_count.sh
+# Custom command and target to generate thread_count.hpp
+add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/include/rio/thread_count.hpp
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/thread_count.sh
+    DEPENDS ${CMAKE_SOURCE_DIR}/scripts/thread_count.sh
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Generating core_count.hpp"
+    COMMENT "Generating thread_count.hpp"
     VERBATIM)
 
-add_custom_target(GenerateCoreCountHeader ALL DEPENDS ${CMAKE_SOURCE_DIR}/include/rio/core_count.hpp)
+add_custom_target(GenerateCoreCountHeader ALL DEPENDS ${CMAKE_SOURCE_DIR}/include/rio/thread_count.hpp)
 
 # Define the library, link dependencies, and include directories
 add_library(rio STATIC src/worker.cpp src/scheduler.cpp src/task.cpp)
