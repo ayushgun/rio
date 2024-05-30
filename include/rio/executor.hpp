@@ -21,7 +21,7 @@
 namespace rio {
 /// Manages the execution of tasks using a specific scheduler.
 template <std::size_t N = rio::hardware_concurrency,
-          constructible_scheduler S = rio::fcfs_scheduler>
+          rio::constructible_scheduler S = rio::fcfs_scheduler>
   requires(N >= 2)
 class executor {
  private:
