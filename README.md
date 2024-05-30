@@ -10,26 +10,40 @@ A runtime for writing slim, concurrent, and asynchronous applications with C++20
 
 # Getting Started
 
+## Task Submission
+
 ```cpp
 #include "rio/executor.hpp"
+
+int make_http_request(std::string_view body) {
+  // ...
+}
 
 int main() {
   // Initialize the runtime by creating an executor object.
   rio::executor executor;
   auto& scheduler = executor.get_scheduler();
 
-  // Submit a task which produces an integer to the `executor`.
-  std::future<int> future = scheduler.spawn([](int n) { return n + 1; }, 10);
-  std::cout << future.get() << '\n';
-  //                  ^^^
-  //                  Retrieve the result via the generated std::future.
+  // a. Submit an asynchronous task which produces an integer to the executor.
+  std::future<int> f1 = scheduler.await([](int n) { return 2 * n; }, 10);
+  std::cout << f1.get() << '\n';
+  //              ^^^
+  //              Retrieve the result via the generated std::future.
+
+  // b. Submit an asynchronous void task to the executor.
+  scheduler.await([](int n) { std::cout << n << '\n'; }, 10);
+
+  // c. Submit a task via a function pointer to the executor.
+  std::future<int> f2 = scheduler.await(make_http_request, "...");
+  std::cout << f2.get() << '\n';
+  //              ^^^
+  //              Similarly retrieve the result via the generated std::future.
 }
 ```
 
-# Further Usage
+## Custom Schedulers & Pool Sizes
 
 ```cpp
-#include <iostream>
 #include "rio/executor.hpp"
 #include "rio/scheduler.hpp"
 
@@ -48,6 +62,31 @@ int main() {
   // Submit a void task to the executor. Since execution is guaranteed to
   // occur strictly once, std::cout synchronization is not required in this
   // trivial case.
-  scheduler.spawn([]() { std::cout << "Hello World\n"; });
+  scheduler.await([]() { std::cout << "Hello World\n"; });
+}
+```
+
+## Example: Reading Files
+
+```cpp
+#include "rio/executor.hpp"
+
+void append_to_file(std::filesystem::path path, std::string_view content) {
+  // ...
+}
+
+int main() {
+  // Initialize the runtime by creating an executor object.
+  rio::executor executor;
+  auto& scheduler = executor.get_scheduler();
+
+  // Get the file system path for all files to append to.
+  std::vector<std::filesystem::path> paths = get_file_paths();
+
+  // Asynchronously append content to all files in the paths vector. Optionally,
+  // store all generated std::future objects to check for thrown exceptions.
+  for (auto& path : paths) {
+    scheduler.await(append_to_file, path, "👋");
+  }
 }
 ```
