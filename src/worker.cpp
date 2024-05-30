@@ -20,8 +20,12 @@ void rio::worker::process_work() {
     ready.acquire();  // Wait until tasks are ready to be executed
 
     while (!tasks.isEmpty()) {
-      std::invoke(std::move(*tasks.frontPtr()));
+      // Claim the next task from task queue and, since task queue size is
+      // bounded, immediately pop before invocation to avoid starving
+      // producer.
+      auto task = std::move(*tasks.frontPtr());
       tasks.popFront();
+      std::invoke(std::move(task));
     }
   }
 }

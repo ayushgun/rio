@@ -36,9 +36,13 @@ bool rio::fcfs_scheduler::has_tasks() const {
 rio::scheduled_task rio::fcfs_scheduler::next() {
   ready.acquire();  // Wait until tasks are ready to be scheduled
 
-  rio::worker_id wid = prev_wid++ % max_wid;
-  rio::scheduled_task next_task = {std::move(*tasks.frontPtr()), wid};
+  // Claim the next task from task queue and, since task queue size is bounded,
+  // immediately pop before distribution to avoid starving producer.
+  auto task = std::move(*tasks.frontPtr());
   tasks.popFront();
+
+  rio::worker_id wid = prev_wid++ % max_wid;
+  rio::scheduled_task next_task = {std::move(task), wid};
 
   return next_task;
 }
