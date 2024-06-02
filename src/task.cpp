@@ -18,13 +18,13 @@
 rio::task::task(std::function<void()> propagator)
     : propagator(propagator), executed(false) {}
 
-rio::task::task(task&& other)
+rio::task::task(task&& other) noexcept
     : propagator(std::exchange(other.propagator, nullptr)),
       executed(other.executed.load()) {
   other.executed.store(true);
 }
 
-rio::task& rio::task::operator=(task&& other) {
+rio::task& rio::task::operator=(task&& other) noexcept {
   propagator = std::exchange(other.propagator, nullptr);
   executed.store(other.executed.load());
   other.executed.store(true);

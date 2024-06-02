@@ -39,11 +39,11 @@ class task {
 
   /// Move constructor that transfers ownership of the task. Primarily used when
   /// transferring the task into a task closure.
-  task(task&&);
+  task(task&&) noexcept;
 
   /// Move assignment operator that transfers ownership of the task. Primarily
   /// used when transferring the task into a task closure.
-  task& operator=(task&&);
+  task& operator=(task&&) noexcept;
 
   /// Constructs a task from a callable and its arguments, and returns a
   /// task closure containing the future result and the task. Allows for
