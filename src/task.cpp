@@ -32,7 +32,7 @@ rio::task& rio::task::operator=(task&& other) {
 }
 
 void rio::task::operator()() {
-  if (!executed.exchange(true)) {
+  if (propagator && !executed.exchange(true)) {
     propagator();
   }
 }
