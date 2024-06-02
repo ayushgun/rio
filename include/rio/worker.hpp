@@ -41,7 +41,7 @@ class worker {
   explicit worker();
 
   worker(const worker&) = delete;
-  void operator=(const worker&) = delete;
+  worker& operator=(const worker&) = delete;
 
   /// Stops work processing logic, signals end of work processing to the master
   /// thread, and joins the thread.
