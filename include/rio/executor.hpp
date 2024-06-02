@@ -46,7 +46,7 @@ class executor {
       : scheduler(N - 1), stop(false), master([&]() { distribute_work(); }) {}
 
   executor(const executor&) = delete;
-  void operator=(const executor&) = delete;
+  executor& operator=(const executor&) = delete;
 
   /// Stops work processing logic and joins the master thread and all worker
   /// threads.
