@@ -18,7 +18,7 @@
 #include <future>
 
 namespace rio {
-/// Forward declaration of the task closure struct to be used in task::build().
+/// Forward declaration of the task closure struct to be used in task::make().
 template <typename R>
 struct task_closure;
 
@@ -29,7 +29,7 @@ class task {
   std::atomic<bool> executed;
 
  private:
-  /// Receives a propagator function built by task::build() and stores it as a
+  /// Receives a propagator function built by task::make() and stores it as a
   /// member for later execution.
   task(std::function<void()>);
 
