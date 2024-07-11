@@ -13,6 +13,7 @@
 
 #include "rio/task.hpp"
 #include <functional>
+#include <stdexcept>
 #include <utility>
 
 rio::task::task(std::function<void()> propagator)
@@ -34,6 +35,8 @@ rio::task& rio::task::operator=(task&& other) noexcept {
 void rio::task::operator()() {
   if (propagator && !executed.exchange(true)) {
     propagator();
+  } else {
+    throw std::logic_error("rio::task object should only be executed once");
   }
 }
 
