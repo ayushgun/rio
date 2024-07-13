@@ -21,6 +21,7 @@
 #include "rio/task.hpp"
 
 namespace rio {
+
 /// Represents a unique identifier for a worker.
 using worker_id = std::size_t;
 
@@ -57,4 +58,5 @@ class worker {
     ready.release();  // Signal that tasks are ready to be executed
   }
 };
+
 }  // namespace rio

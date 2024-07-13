@@ -23,6 +23,7 @@
 #include "rio/worker.hpp"
 
 namespace rio {
+
 /// Represents a task scheduled for execution with the assigned worker.
 struct scheduled_task {
   rio::task task;      // Task to be executed.
@@ -90,4 +91,5 @@ class fcfs_scheduler : public rio::scheduler {
   /// appropriate worker ID. Blocks until a task is ready to be scheduled.
   rio::scheduled_task next() override;
 };
+
 }  // namespace rio

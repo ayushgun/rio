@@ -19,6 +19,7 @@
 #include "rio/worker.hpp"
 
 namespace rio {
+
 /// Manages the execution of tasks using a specific scheduler.
 template <std::size_t N = rio::hardware_concurrency,
           rio::constructible_scheduler S = rio::fcfs_scheduler>
@@ -68,4 +69,5 @@ class executor {
   /// Exposes a mutable reference to the task scheduler.
   constexpr S& get_scheduler() { return scheduler; }
 };
+
 }  // namespace rio

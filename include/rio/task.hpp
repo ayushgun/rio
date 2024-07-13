@@ -18,6 +18,7 @@
 #include <future>
 
 namespace rio {
+
 /// Forward declaration of the task closure struct to be used in task::make().
 template <typename R>
 struct task_closure;
@@ -90,4 +91,5 @@ struct task_closure {
   std::future<R> future;  // Future to hold the result after task execution.
   rio::task task;         // Single-callable task which fills the future.
 };
+
 }  // namespace rio

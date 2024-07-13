@@ -16,8 +16,10 @@
 #include <cstddef>
 
 namespace rio {
+
 /// Hardware concurrency setting defined at compile-time. This value will be set
 /// by the build system (e.g., CMake) because
 /// std::thread::hardware_concurrency() is a runtime member function.
 constexpr std::size_t hardware_concurrency = 8;
+
 }  // namespace rio
