@@ -25,14 +25,14 @@ rio::task::task(task&& other) noexcept
   other.executed.store(true);
 }
 
-rio::task& rio::task::operator=(task&& other) noexcept {
+auto rio::task::operator=(task&& other) noexcept -> rio::task& {
   propagator = std::exchange(other.propagator, nullptr);
   executed.store(other.executed.load());
   other.executed.store(true);
   return *this;
 }
 
-void rio::task::operator()() {
+auto rio::task::operator()() -> void {
   if (propagator && !executed.exchange(true)) {
     propagator();
   } else {
@@ -40,6 +40,6 @@ void rio::task::operator()() {
   }
 }
 
-bool rio::task::is_executable() const {
+auto rio::task::is_executable() const -> bool {
   return !executed.load();
 }

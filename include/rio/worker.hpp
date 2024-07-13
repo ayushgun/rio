@@ -35,14 +35,14 @@ class worker {
 
  private:
   /// Processes all work in the task queue.
-  void process_work();
+  auto process_work() -> void;
 
  public:
   /// Creates and initializes a worker thread with work processing logic.
   explicit worker();
 
   worker(const worker&) = delete;
-  worker& operator=(const worker&) = delete;
+  auto operator=(const worker&) -> worker& = delete;
 
   /// Stops work processing logic, signals end of work processing to the master
   /// thread, and joins the thread.
@@ -50,7 +50,7 @@ class worker {
 
   /// Adds a task to the worker's task queue.
   template <typename T>
-  void assign(T&& task) {
+  auto assign(T&& task) -> void {
     while (!tasks.write(std::forward<T>(task))) {
       std::this_thread::yield();
     }

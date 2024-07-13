@@ -15,7 +15,7 @@
 #include <thread>
 #include "rio/thread_count.hpp"
 
-void rio::worker::process_work() {
+auto rio::worker::process_work() -> void {
   while (!stop.load()) {
     ready.acquire();  // Wait until tasks are ready to be executed
 

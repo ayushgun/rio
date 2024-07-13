@@ -36,7 +36,7 @@ class task {
 
  public:
   task(const task&) = delete;
-  task& operator=(const task&) = delete;
+  auto operator=(const task&) -> task& = delete;
 
   /// Move constructor that transfers ownership of the task. Primarily used when
   /// transferring the task into a task closure.
@@ -44,7 +44,7 @@ class task {
 
   /// Move assignment operator that transfers ownership of the task. Primarily
   /// used when transferring the task into a task closure.
-  task& operator=(task&&) noexcept;
+  auto operator=(task&&) noexcept -> task&;
 
   /// Constructs a task from a callable and its arguments, and returns a
   /// task closure containing the future result and the task. Allows for
@@ -53,7 +53,7 @@ class task {
       typename F,
       typename... A,
       typename R = std::invoke_result_t<std::decay_t<F>, std::decay_t<A>...>>
-  static task_closure<R> make(F&& function, A&&... arguments) {
+  static auto make(F&& function, A&&... arguments) -> rio::task_closure<R> {
     auto promise = new std::promise<R>();
     std::future<R> future = promise->get_future();
 
@@ -78,10 +78,10 @@ class task {
   }
 
   /// Executes the encapsulated callable if it has not been executed already.
-  void operator()();
+  auto operator()() -> void;
 
   /// Returns whether or not the callable can be executed now.
-  bool is_executable() const;
+  auto is_executable() const -> bool;
 };
 
 /// Represents a task and its associated future. The future holds the result

@@ -33,7 +33,7 @@ class executor {
 
  private:
   /// Continuously retrieves and assigns scheduled tasks to workers.
-  void distribute_work() {
+  auto distribute_work() -> void {
     while (!stop.load() || scheduler.has_tasks()) {
       rio::scheduled_task task = scheduler.next();
       workers[task.wid].assign(std::move(task.task));
@@ -47,7 +47,7 @@ class executor {
       : scheduler(N - 1), stop(false), master([&]() { distribute_work(); }) {}
 
   executor(const executor&) = delete;
-  executor& operator=(const executor&) = delete;
+  auto operator=(const executor&) -> executor& = delete;
 
   /// Stops work processing logic and joins the master thread and all worker
   /// threads.
@@ -67,7 +67,7 @@ class executor {
   }
 
   /// Exposes a mutable reference to the task scheduler.
-  constexpr S& get_scheduler() { return scheduler; }
+  constexpr auto get_scheduler() -> S& { return scheduler; }
 };
 
 }  // namespace rio

@@ -36,16 +36,16 @@ struct scheduled_task {
 class scheduler {
  protected:
   /// Schedules a task for execution.
-  virtual void schedule(rio::task&&) = 0;
+  virtual auto schedule(rio::task&&) -> void = 0;
 
  public:
   virtual ~scheduler() = default;
 
   /// Returns true if there are tasks pending to be scheduled.
-  virtual bool has_tasks() const = 0;
+  virtual auto has_tasks() const -> bool = 0;
 
   /// Retrieves the next scheduled task if available.
-  virtual rio::scheduled_task next() = 0;
+  virtual auto next() -> rio::scheduled_task = 0;
 
   /// Submits a task for execution and returns a future containing the task's
   /// return value or exception.
@@ -53,7 +53,7 @@ class scheduler {
       typename F,
       typename... A,
       typename R = std::invoke_result_t<std::decay_t<F>, std::decay_t<A>...>>
-  std::future<R> await(F&& function, A&&... arguments) {
+  auto await(F&& function, A&&... arguments) -> std::future<R> {
     auto [future, task] = rio::task::make(std::forward<F>(function),
                                           std::forward<A>(arguments)...);
 
@@ -78,18 +78,18 @@ class fcfs_scheduler : public rio::scheduler {
 
  protected:
   /// Schedules a task using a FCFS approach.
-  void schedule(rio::task&&) override;
+  auto schedule(rio::task&&) -> void override;
 
  public:
   /// Constructs a FCFS scheduler for a specified number of workers.
   explicit fcfs_scheduler(std::size_t);
 
   /// Returns true if there are tasks in the scheduler's queue.
-  bool has_tasks() const override;
+  auto has_tasks() const -> bool override;
 
   /// Retrieves and prepares the next task for execution, determining the
   /// appropriate worker ID. Blocks until a task is ready to be scheduled.
-  rio::scheduled_task next() override;
+  auto next() -> rio::scheduled_task override;
 };
 
 }  // namespace rio

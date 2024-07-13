@@ -21,7 +21,7 @@ rio::fcfs_scheduler::fcfs_scheduler(std::size_t num_workers)
       prev_wid(0),
       max_wid(num_workers) {}
 
-void rio::fcfs_scheduler::schedule(rio::task&& task) {
+auto rio::fcfs_scheduler::schedule(rio::task&& task) -> void {
   while (!tasks.write(std::move(task))) {
     std::this_thread::yield();
   }
@@ -29,11 +29,11 @@ void rio::fcfs_scheduler::schedule(rio::task&& task) {
   ready.release();  // Signal that tasks are ready to be scheduled
 }
 
-bool rio::fcfs_scheduler::has_tasks() const {
+auto rio::fcfs_scheduler::has_tasks() const -> bool {
   return !tasks.isEmpty();
 }
 
-rio::scheduled_task rio::fcfs_scheduler::next() {
+auto rio::fcfs_scheduler::next() -> rio::scheduled_task {
   ready.acquire();  // Wait until tasks are ready to be scheduled
 
   // Claim the next task from task queue and, since task queue size is bounded,
