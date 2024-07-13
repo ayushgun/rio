@@ -36,7 +36,7 @@ TEST(task_test, TaskExecutesOnlyOnce) {
   auto task_closure = rio::task::make([&]() { ++count; });
 
   task_closure.task();
-  task_closure.task();  // Second execution should have no effect
+  EXPECT_THROW(task_closure.task(), std::logic_error);
   task_closure.future.get();
   EXPECT_EQ(count, 1);
 }
