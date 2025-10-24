@@ -16,6 +16,7 @@
 #include <atomic>
 #include <functional>
 #include <future>
+#include <memory>
 
 namespace rio {
 
@@ -54,7 +55,7 @@ class task {
       typename... A,
       typename R = std::invoke_result_t<std::decay_t<F>, std::decay_t<A>...>>
   static auto make(F&& function, A&&... arguments) -> rio::task_closure<R> {
-    auto promise = new std::promise<R>();
+    auto promise = std::make_shared<std::promise<R>>();
     std::future<R> future = promise->get_future();
 
     auto propagater = [promise, function = std::forward<F>(function),
@@ -70,11 +71,9 @@ class task {
       } catch (...) {
         promise->set_exception(std::current_exception());
       }
-
-      delete promise;
     };
 
-    return {std::move(future), std::move(task(std::move(propagater)))};
+    return task_closure<R>{std::move(future), std::move(task(std::move(propagater)))};
   }
 
   /// Executes the encapsulated callable if it has not been executed already.

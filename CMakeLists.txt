@@ -26,8 +26,9 @@ add_custom_target(GenerateCoreCountHeader ALL DEPENDS ${CMAKE_SOURCE_DIR}/includ
 
 # Define the library, link dependencies, and include directories
 add_library(rio STATIC src/worker.cpp src/scheduler.cpp src/task.cpp)
-target_include_directories(rio PUBLIC include ${FOLLY_INCLUDE_DIR})
-target_link_libraries(rio PRIVATE ${FOLLY_LIBRARY})
+target_include_directories(rio PUBLIC include)
+target_include_directories(rio PRIVATE ${FOLLY_INCLUDE_DIR})
+target_include_directories(rio SYSTEM INTERFACE ${FOLLY_INCLUDE_DIR})
 add_dependencies(rio GenerateCoreCountHeader)
 
 # Include Google Test
@@ -42,8 +43,11 @@ FetchContent_MakeAvailable(googletest)
 # Test executable
 add_executable(rio_tests test/executor_test.cpp test/worker_test.cpp test/scheduler_test.cpp test/task_test.cpp)
 target_link_libraries(rio_tests PRIVATE rio gtest_main)
+target_include_directories(rio_tests BEFORE PRIVATE ${gtest_SOURCE_DIR}/include)
+target_compile_options(rio_tests BEFORE PRIVATE "-I${gtest_SOURCE_DIR}/include")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_link_libraries(rio_tests PRIVATE c++abi)
+    target_link_options(rio_tests PRIVATE "-L/opt/homebrew/opt/llvm/lib/c++" "-Wl,-rpath,/opt/homebrew/opt/llvm/lib/c++")
 endif()
 
 # Compiler and linker flags for debug builds with sanitizers
